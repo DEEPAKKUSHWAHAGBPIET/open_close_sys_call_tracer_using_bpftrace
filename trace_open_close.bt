@@ -1,0 +1,24 @@
+#!/usr/bin/env bpftrace
+
+BEGIN
+{
+    printf("Tracing open/close syscalls for PID %d... Hit Ctrl-C to stop.\n", pid);
+}
+
+tracepoint:syscalls:sys_enter_openat
+{
+    @open_calls[pid, comm] = count();
+}
+
+tracepoint:syscalls:sys_enter_close
+{
+    @close_calls[pid, comm] = count();
+}
+
+END
+{
+    printf("\n--- open() call frequency ---\n");
+    print(@open_calls);
+    printf("\n--- close() call frequency ---\n");
+    print(@close_calls);
+}
